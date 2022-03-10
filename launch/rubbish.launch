@@ -10,13 +10,13 @@
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
   <!-- node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" /-->
 
-  <node pkg="wpb_home_behaviors" type="wpb_home_grab_server" name="wpb_home_grab_server">
+  <!-- <node pkg="wpb_home_behaviors" type="wpb_home_grab_server" name="wpb_home_grab_server">
     <param name="start" type="bool" value="false"/> 
     <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
-  </node>
+  </node> -->
 
   <!-- Run the map server -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find wpb_home_tutorials)/maps/map.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find rubbish)/maps/map.yaml"/>
 
   <!--- Run AMCL -->
   <include file="$(find wpb_home_tutorials)/nav_lidar/amcl_omni.launch" />
@@ -28,7 +28,7 @@
 
   <!-- Map tools  -->
   <node pkg="waterplus_map_tools" type="wp_manager" name="wp_manager" output="screen">
-    <param name="load" type="string" value="$(find wpb_home_tutorials)/maps/waypoints.xml"/> 
+    <param name="load" type="string" value="$(find rubbish)/maps/waypoints.xml"/> 
   </node>
 
   <!-- Run wpb_home core -->
@@ -161,15 +161,16 @@
   <!-- Run sound_play -->
   <node name="soundplay_node" pkg="sound_play" type="soundplay_node.py"/>
 
-  <node pkg="wpb_home_tutorials" type="wpb_home_explore" name="wpb_home_explore" output="screen"/>
+  <node pkg="rubbish" type="wpb_home_explore" name="wpb_home_explore" output="screen"/>
 
-  <node pkg="wpb_home_tutorials" type="wpb_home_near" name="wpb_home_near" output="screen"/>
+  <node pkg="rubbish" type="wpb_home_near" name="wpb_home_near" output="screen"/>
 
-  <node name="Yolo_process" pkg="wpb_home_tutorials" type="yolo_process_node.py"/>
+  <node name="yolo_process" pkg="rubbish" type="yolo_process_node.py"/>
 
   <node name="yolo_node" pkg="yolo_in_ros" type="yolo_intermediate.py"/>
+
   <!-- Run script -->
-  <node pkg="wpb_home_apps" type="rubbish" name="rubbish" output="screen"/>
+  <node pkg="rubbish" type="rubbish" name="rubbish" output="screen"/>
 
   <node pkg="lifter" type="lifter" name="lifter" output="screen"/>
 
