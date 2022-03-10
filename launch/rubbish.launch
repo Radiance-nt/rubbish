@@ -172,7 +172,7 @@
   <!-- Run script -->
   <node pkg="rubbish" type="rubbish" name="rubbish" output="screen"/>
 
-  <node pkg="lifter" type="lifter" name="lifter" output="screen"/>
+  <node pkg="lifter" type="rubbish" name="lifter" output="screen"/>
 
 
 </launch>
