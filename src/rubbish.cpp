@@ -2,7 +2,7 @@
 #include <std_msgs/String.h>
 #include "rubbish/Near.h"
 #include "rubbish/Explore.h"
-#include <lifter/Lifter.h>
+#include <rubbish/Lifter.h>
 #include <geometry_msgs/Twist.h>
 #include "xfyun_waterplus/IATSwitch.h"
 #include <sound_play/SoundRequest.h>
@@ -42,7 +42,7 @@ static ros::ServiceClient explore_start;
 static ros::ServiceClient explore_stop;
 static ros::ServiceClient arm;
 static rubbish::Explore srvEpl;
-static lifter::Lifter srvArm;
+static rubbish::Lifter srvArm;
 static rubbish::Near srvNear;
 
 static ros::Publisher behaviors_pub;
@@ -127,7 +127,7 @@ int main(int argc, char **argv)
 
     explore_start = n.serviceClient<rubbish::Explore>("wpb_home_explore/start");
     explore_stop = n.serviceClient<rubbish::Explore>("wpb_home_explore/stop");
-    arm = n.serviceClient<lifter::Lifter>("/wpb_home_arm");
+    arm = n.serviceClient<rubbish::Lifter>("/wpb_home_arm");
     cliGetWPName = n.serviceClient<waterplus_map_tools::GetWaypointByName>("/waterplus/get_waypoint_name");
     add_waypoint_pub = n.advertise<waterplus_map_tools::Waypoint>("/waterplus/add_waypoint", 1);
     spk_pub = n.advertise<sound_play::SoundRequest>("/robotsound", 20);
