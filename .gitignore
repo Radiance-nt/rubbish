@@ -4,10 +4,8 @@ __pycache__/
 *$py.class
 .idea/
 # C extensions
-*.so
+
 *.gz
-# yaml config file
-*.yaml
 
 # Distribution / packaging
 .Python
