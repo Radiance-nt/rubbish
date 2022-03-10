@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/JointState.h>
 #include <geometry_msgs/Twist.h>
-#include <lifter/Lifter.h>
+#include <rubbish/Lifter.h>
 
 #define state_grip 1
 #define state_throw 0
@@ -39,7 +39,7 @@ void move(double vel, double duration)
 
 }
 
-bool grip(lifter::Lifter::Request &req, lifter::Lifter::Response &res)
+bool grip(rubbish::Lifter::Request &req, rubbish::Lifter::Response &res)
 {
 	static sensor_msgs::JointState ctrl_msg;
 	
