@@ -1,5 +1,5 @@
 <launch>
-
+  <arg name="map" default="maps/map_test"/>
   <arg name="model" default="$(find wpb_home_bringup)/urdf/wpb_home_mani.urdf"/>
   <arg name="gui" default="true" />
   <arg name="rvizconfig" default="$(find wpb_home_apps)/rviz/slam_mani.rviz" />
@@ -16,19 +16,19 @@
   </node>
 
   <!-- Run the map server -->
-  <node name="map_server" pkg="map_server" type="map_server" args="$(find rubbish)/maps/map.yaml"/>
+  <node name="map_server" pkg="map_server" type="map_server" args="$(find rubbish)/$(arg map)/map.yaml"/>
 
   <!--- Run AMCL -->
   <include file="$(find wpb_home_tutorials)/nav_lidar/amcl_omni.launch" />
 
   <!-- Run gmapping -->
-  <!-- node pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
+  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
     <param name="base_frame" value="base_footprint"/>
-  </node-->
+  </node>
 
   <!-- Map tools  -->
   <node pkg="waterplus_map_tools" type="wp_manager" name="wp_manager" output="screen">
-    <param name="load" type="string" value="$(find rubbish)/maps/waypoints.xml"/> 
+    <param name="load" type="string" value="$(find rubbish)/$(arg map)/waypoints.xml"/> 
   </node>
 
   <!-- Run wpb_home core -->
@@ -157,9 +157,6 @@
 
     <param name= "controller_frequency" value="10" type="double"/>
   </node>
- 
-  <!-- Run sound_play -->
-  <node name="soundplay_node" pkg="sound_play" type="soundplay_node.py"/>
 
   <node pkg="rubbish" type="wpb_home_explore" name="wpb_home_explore" output="screen"/>
 
