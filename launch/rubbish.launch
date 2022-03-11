@@ -8,12 +8,12 @@
   <param name="use_gui" value="$(arg gui)"/> 
 
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
-  <!-- node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" /-->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
 
-  <!-- <node pkg="wpb_home_behaviors" type="wpb_home_grab_server" name="wpb_home_grab_server">
+  <node pkg="wpb_home_behaviors" type="wpb_home_grab_server" name="wpb_home_grab_server">
     <param name="start" type="bool" value="false"/> 
     <rosparam file="$(find wpb_home_bringup)/config/wpb_home.yaml" command="load" />
-  </node> -->
+  </node>
 
   <!-- Run the map server -->
   <node name="map_server" pkg="map_server" type="map_server" args="$(find rubbish)/maps/map.yaml"/>

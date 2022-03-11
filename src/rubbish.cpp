@@ -45,8 +45,8 @@ static rubbish::Explore srvEpl;
 static rubbish::Lifter srvArm;
 static rubbish::Near srvNear;
 
-static ros::Publisher behaviors_pub;
-static std_msgs::String behavior_msg;
+// static ros::Publisher behaviors_pub;
+// static std_msgs::String behavior_msg;
 
 static ros::Subscriber grab_result_sub;
 static ros::Subscriber place_result_sub;
@@ -54,70 +54,71 @@ static bool bGrabDone = false;
 static bool bPlaceDone;
 
 static int nState = STATE_INIT;
+
 static int nDelay = 0;
 
 static int nIndexWant = 0;
 
 // 语音说话
-void Speak(string inStr)
-{
-    spk_msg.arg = inStr;
-    spk_msg.volume = 1.0f; //indigo(Ubuntu 14.04)需要注释掉这一句才能编译
-    spk_pub.publish(spk_msg);
-    ros::spinOnce();
-}
+// void Speak(string inStr)
+// {
+//     spk_msg.arg = inStr;
+//     spk_msg.volume = 1.0f; //indigo(Ubuntu 14.04)需要注释掉这一句才能编译
+//     spk_pub.publish(spk_msg);
+//     ros::spinOnce();
+// }
 
-// 物品抓取模式开关
-static void GrabSwitch(bool inActive)
-{
-    if (inActive == true)
-    {
-        behavior_msg.data = "grab start";
-        behaviors_pub.publish(behavior_msg);
-    }
-    else
-    {
-        behavior_msg.data = "grab stop";
-        behaviors_pub.publish(behavior_msg);
-    }
-}
+// // 物品抓取模式开关
+// static void GrabSwitch(bool inActive)
+// {
+//     if (inActive == true)
+//     {
+//         behavior_msg.data = "grab start";
+//         behaviors_pub.publish(behavior_msg);
+//     }
+//     else
+//     {
+//         behavior_msg.data = "grab stop";
+//         behaviors_pub.publish(behavior_msg);
+//     }
+// }
 
-// Placement开关
-static void PlaceSwitch(bool inActive)
-{
-    if (inActive == true)
-    {
-        behavior_msg.data = "place start";
-        behaviors_pub.publish(behavior_msg);
-    }
-    else
-    {
-        behavior_msg.data = "place stop";
-        behaviors_pub.publish(behavior_msg);
-    }
-}
+// // Placement开关
+// static void PlaceSwitch(bool inActive)
+// {
+//     if (inActive == true)
+//     {
+//         behavior_msg.data = "place start";
+//         behaviors_pub.publish(behavior_msg);
+//     }
+//     else
+//     {
+//         behavior_msg.data = "place stop";
+//         behaviors_pub.publish(behavior_msg);
+//     }
+// }
 
-// 物品抓取状态
-void GrabResultCallback(const std_msgs::String::ConstPtr &res)
-{
-    int nFindIndex = 0;
-    nFindIndex = res->data.find("done");
-    if (nFindIndex >= 0)
-    {
-        bGrabDone = true;
-    }
-}
+// // 物品抓取状态
+// void GrabResultCallback(const std_msgs::String::ConstPtr &res)
+// {
+//     int nFindIndex = 0;
+//     nFindIndex = res->data.find("done");
+//     if (nFindIndex >= 0)
+//     {
+//         bGrabDone = true;
+//     }
+// }
 
-// 物品递给状态
-void PlaceResultCallback(const std_msgs::String::ConstPtr &res)
-{
-    int nFindIndex = 0;
-    nFindIndex = res->data.find("done");
-    if (nFindIndex >= 0)
-    {
-        bPlaceDone = true;
-    }
-}
+// // 物品递给状态
+// void PlaceResultCallback(const std_msgs::String::ConstPtr &res)
+// {
+//     int nFindIndex = 0;
+//     nFindIndex = res->data.find("done");
+//     if (nFindIndex >= 0)
+//     {
+//         bPlaceDone = true;
+//     }
+// }
 
 int main(int argc, char **argv)
 {
@@ -130,14 +131,12 @@ int main(int argc, char **argv)
     arm = n.serviceClient<rubbish::Lifter>("/wpb_home_arm");
     cliGetWPName = n.serviceClient<waterplus_map_tools::GetWaypointByName>("/waterplus/get_waypoint_name");
     add_waypoint_pub = n.advertise<waterplus_map_tools::Waypoint>("/waterplus/add_waypoint", 1);
-    spk_pub = n.advertise<sound_play::SoundRequest>("/robotsound", 20);
-    spk_msg.sound = sound_play::SoundRequest::SAY;
-    spk_msg.command = sound_play::SoundRequest::PLAY_ONCE;
-    vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
+
+    // vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 10);
     clientIAT = n.serviceClient<xfyun_waterplus::IATSwitch>("xfyun_waterplus/IATSwitch");
-    behaviors_pub = n.advertise<std_msgs::String>("/wpb_home/behaviors", 30);
-    grab_result_sub = n.subscribe<std_msgs::String>("/wpb_home/grab_result", 30, &GrabResultCallback);
-    place_result_sub = n.subscribe<std_msgs::String>("/wpb_home/place_result", 30, &PlaceResultCallback);
+    // behaviors_pub = n.advertise<std_msgs::String>("/wpb_home/behaviors", 30);
+    // grab_result_sub = n.subscribe<std_msgs::String>("/wpb_home/grab_result", 30, &GrabResultCallback);
+    // place_result_sub = n.subscribe<std_msgs::String>("/wpb_home/place_result", 30, &PlaceResultCallback);
     srvArm.request.height = 0.2;
     srvArm.request.gap = 0.1;
 
@@ -267,7 +266,7 @@ int main(int argc, char **argv)
         // 7、将物品
         if (nState == STATE_PLACE)
         {
-            
+
             ROS_INFO("[STATE_PLACE]");
 
             srvArm.request.state = 0;
