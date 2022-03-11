@@ -1,4 +1,4 @@
-#!/home/radiance/miniconda3/envs/ros/bin/python
+#!/home/lilinux/anaconda3/envs/yolov5/bin/python
 
 from std_msgs.msg import String
 import json
