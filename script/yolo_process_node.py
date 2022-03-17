@@ -67,6 +67,7 @@ class Entities:
             if cla in self.class_list:
                 for et in ets:
                     pixel_x, pixel_y, pixel_w, pixel_h, _ = et
+                    pixel_x =+ pixel_w/2
                     norm_pixel_x = pixel_x - (CAMERA_WIDTH / 2)
                     z = self.get_depth(pixel_x, pixel_y) / 1000
                     d_angle = - math.atan(norm_pixel_x / (CAMERA_HEIGHT / 2) /
@@ -113,7 +114,7 @@ def update_depth(image_msg):
     image = np.repeat(image, 3, 2)
     Xmin = np.min(image)
     Xmax = np.max(image)
-    image = 255 / (Xmax - Xmin) * (image - Xmin)
+    image = 255 / (Xmax - Xmin + 0.1) * (image - Xmin)
     global g_allO, g_N
     for object in g_allO:
         image = draw(object, image)

@@ -6,21 +6,21 @@
         <Pos_z>0</Pos_z>
         <Ori_x>0</Ori_x>
         <Ori_y>0</Ori_y>
-        <Ori_z>-0.698083</Ori_z>
+        <Ori_z>0.698083</Ori_z>
         <Ori_w>0.716017</Ori_w>
     </Waypoint>
     <Waypoint>
         <Name>2</Name>
         <Pos_x>3.67685</Pos_x>
-        <Pos_y>0.639758</Pos_y>
+        <Pos_y>0.439758</Pos_y>
         <Pos_z>0</Pos_z>
         <Ori_x>0</Ori_x>
         <Ori_y>0</Ori_y>
-        <Ori_z>0.530787</Ori_z>
+        <Ori_z>-0.530787</Ori_z>
         <Ori_w>0.847505</Ori_w>
     </Waypoint>
     <Waypoint>
-        <Name>3</Name>
+        <Name>final</Name>
         <Pos_x>0.672457</Pos_x>
         <Pos_y>-1.4314</Pos_y>
         <Pos_z>0</Pos_z>

@@ -170,7 +170,9 @@ void GotoRubbish(const wpb_home_behaviors::Coord::ConstPtr &msg)
                 ros::param::set("/wpb_tutorial_near", naerSuccess);
             }
             else
+                {
                 successDelay += 10;
+                }
             ROS_INFO("successDelay=%d", successDelay);
         }
         else

@@ -21,11 +21,6 @@
   <!--- Run AMCL -->
   <include file="$(find wpb_home_tutorials)/nav_lidar/amcl_omni.launch" />
 
-  <!-- Run gmapping -->
-  <node pkg="gmapping" type="slam_gmapping" name="slam_gmapping">
-    <param name="base_frame" value="base_footprint"/>
-  </node>
-
   <!-- Map tools  -->
   <node pkg="waterplus_map_tools" type="wp_manager" name="wp_manager" output="screen">
     <param name="load" type="string" value="$(find rubbish)/$(arg map)/waypoints.xml"/> 

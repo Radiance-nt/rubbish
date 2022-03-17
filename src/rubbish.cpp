@@ -194,7 +194,7 @@ int main(int argc, char **argv)
                 if (!near_switch)
                     nState = STATE_EXPLORE;
                 else
-                    nState = STATE_GRAB;
+                    nState = STATE_RETURN;
                 nDelay = 0;
                 nDelay++;
             }
