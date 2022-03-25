@@ -1,5 +1,6 @@
 #!/home/lilinux/anaconda3/envs/yolov5/bin/python
 
+from cmath import sqrt
 from std_msgs.msg import String
 import json
 import math
@@ -10,18 +11,17 @@ import rospy
 import numpy as np
 import cv2
 import random
-
 LENGTH = 0.6
 TAN = 1 / LENGTH
 ALPHA = 3
-
+global inlier
+inlier = 0
 g_allO = []
 g_N = None
-
 _cv_bridge = CvBridge()
 
 sub_topic = "/kinect2/qhd/image_depth_rect"
-
+right_topic="yolo_depth"
 class_list = ['bottle']
 
 if 'sd' in sub_topic:
@@ -43,7 +43,11 @@ def pixel2real(pixel_x, pixel_y, z):
 
 
 def pixel2relative(pixel_x, pixel_y, z):
-    relative_y = pixel_y / CAMERA_HEIGHT
+    # relative_y = pixel_y / CAMERA_HEIGHT
+    norm_height=(540-pixel_y)/260
+    delta_height=1.6-norm_height
+    diff=sqrt(delta_height*delta_height+1*1)
+    relative_y=z/diff
     return relative_y
 
 
@@ -58,6 +62,7 @@ class Entities:
         index_y = int(pixel_y)
         if isinstance(self.depth, np.ndarray):
             return self.depth[index_y - ALPHA:index_y + ALPHA, index_x - ALPHA:index_x + ALPHA].mean()
+            # return self.depth[index_x - ALPHA:index_x + ALPHA, index_y - ALPHA:index_y + ALPHA].mean()
         else:
             return -1
 
@@ -67,6 +72,7 @@ class Entities:
             if cla in self.class_list:
                 for et in ets:
                     pixel_x, pixel_y, pixel_w, pixel_h, _ = et
+                    pixel_x=pixel_x+pixel_w/2
                     norm_pixel_x = pixel_x - (CAMERA_WIDTH / 2)
                     z = self.get_depth(pixel_x, pixel_y) / 1000
                     d_angle = - math.atan(norm_pixel_x / (CAMERA_HEIGHT / 2) /
@@ -80,12 +86,17 @@ class Entities:
         return self.objects
 
     def getNearEntity(self):
+        global inlier
         pointer = []
         minn_d_angle = 5
         for object in self.objects:
             if abs(object[4]) < minn_d_angle:
                 minn_d_angle = abs(object[4])
                 pointer = object
+            if object[1]>200 and object[1]<760:
+               inlier = 1
+            else:
+               inlier = 0
         return pointer
 
 
@@ -135,7 +146,7 @@ def packCoord(object):
 
 
 def yoloCallback(msg: String):
-    global g_allO, g_N
+    global g_allO, g_N,inlier
     s = msg.data
     result = json.loads(s)
     global_entities.add(result)
@@ -144,21 +155,31 @@ def yoloCallback(msg: String):
         pose_msg = packCoord(object)
         yolo_pub.publish(pose_msg)
     g_N = global_entities.getNearEntity()
-    if g_N:
+    if g_N and inlier:
         pose_msg = packCoord(g_N)
         yolo_pub.publish(pose_msg)
-        rospy.set_param('rubbish_exist', 1)
+        rospy.set_param('/rubbish_exist', 1)
+    else:
+        pose_msg = Coord()
+        pose_msg.name = "none"
+        pose_msg.x = [10]
+        pose_msg.y = [10]
+        pose_msg.z = [10]
+        pose_msg.probability = [10]
+        yolo_pub.publish(pose_msg)
+        rospy.set_param('/rubbish_exist', 0)
     rate.sleep()
 
 
 if __name__ == '__main__':
     rospy.init_node('Yolo_process', anonymous=True)
     rate = rospy.Rate(500)
+    # rospy.set_param('rubbish_exist',0)
     yolo_pub = rospy.Publisher('/rubbishes', Coord, queue_size=1)
-
+    
     rospy.Subscriber(name="yolo_result", data_class=String,
                      queue_size=5, callback=yoloCallback)
-
-    rospy.Subscriber(sub_topic, Image, update_depth)
+    
+    rospy.Subscriber(right_topic, Image, update_depth)
 
     rospy.spin()

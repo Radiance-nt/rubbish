@@ -58,19 +58,19 @@ static ros::ServiceClient cliGetWPIndex;
 static ros::ServiceClient cliGetNum;
 static waterplus_map_tools::GetWaypointByName srvName;
 static waterplus_map_tools::GetWaypointByIndex srvI;
-
-static float speedRate = 0.6;
-
+static float speedRate = 1.0;
 static float human_x = 0;
 static float human_y = 0;
+static float human_z = 0;
 static float max_linear_vel = 0.5;
 static float max_angular_vel = 1.5;
-static float keep_dist = 0.8; //跟随距离
-
+static float keep_dist = 0.4; //到物体所在平面的垂直距离
+// static int exist_rubbish=1;
 // #define ROOM_SIZE 5
 static int ROOM_SIZE;
 static bool bActive = false;
 static int naerSuccess = 0;
+static int exist_rubbish=1;
 static int successDelay = 0;
 
 static int room_index = 0;
@@ -116,20 +116,35 @@ void GotoRubbish(const wpb_home_behaviors::Coord::ConstPtr &msg)
         return;
     else
     {
-        // ROS_INFO("Get close to rubbish..");
+        ROS_INFO("Get close to rubbish..");
 
         human_x = (msg->x)[0];
-        human_y = (msg->z)[0];
+        human_y = (msg->y)[0];
+        human_z = (msg->y)[0];
         float d_angle = (msg->probability)[0];
-
+        
         geometry_msgs::Twist vel_cmd;
 
-        float flw_dist = sqrt(human_x * human_x + human_y * human_y);
-
+        // float flw_dist = sqrt(human_x * human_x + human_y * human_y);
+        float flw_dist = human_z;
+        // flw_dist = sqrt(human_z * human_z - flw_dist * flw_dist);
         float diff_dist = flw_dist - keep_dist;
-        float flw_linear = diff_dist * 0.1;
+        ROS_INFO("the diatance is %.2f",diff_dist);
+        float flw_linear = diff_dist;
         if (fabs(flw_linear) > 0.05 * speedRate)
         {
+            flw_linear *=0.15;
+            if(fabs(flw_linear)<0.25*0.15)
+            {
+                if(flw_linear>0)
+                {
+                    flw_linear=0.25*0.15;
+                }
+                else
+                {
+                    flw_linear=-1*0.25*0.15;
+                }
+            }
             vel_cmd.linear.x = flw_linear;
             if (vel_cmd.linear.x > max_linear_vel)
                 vel_cmd.linear.x = max_linear_vel;
@@ -144,7 +159,7 @@ void GotoRubbish(const wpb_home_behaviors::Coord::ConstPtr &msg)
         }
         // ROS_INFO("human_x:%f, human_y:%f, diff_dist:%f, d_angle:%f", human_x, human_y, diff_dist, d_angle);
         float flw_turn = d_angle * 0.5;
-        if (fabs(flw_turn) > 0.07)
+        if (fabs(flw_turn) > 0.05)
         {
             vel_cmd.angular.z = flw_turn;
             if (vel_cmd.angular.z > max_angular_vel)
@@ -158,9 +173,7 @@ void GotoRubbish(const wpb_home_behaviors::Coord::ConstPtr &msg)
         }
         vel_cmd.angular.z *= speedRate;
         vel_cmd.linear.x *= speedRate;
-        vel_pub.publish(vel_cmd);
-
-        if ((diff_dist <= keep_dist) && (fabs(d_angle) < 0.1))
+        if ((fabs(diff_dist)<0.05) && (fabs(d_angle) < 0.1))
         {
             if (successDelay > 50)
             {
@@ -177,12 +190,17 @@ void GotoRubbish(const wpb_home_behaviors::Coord::ConstPtr &msg)
         {
             successDelay = max(successDelay - 10, 0);
         }
-        if (false) // near false
+        exist_rubbish=0;
+        ros::param::get("/rubbish_exist",exist_rubbish);
+        ROS_INFO(".....%d......",exist_rubbish);
+        if (exist_rubbish==0) // near false
         {
+            ROS_INFO("not found ............");
             naerSuccess = 0;
             near_stop();
             ros::param::set("/wpb_tutorial_near", naerSuccess);
         }
+        vel_pub.publish(vel_cmd);
     }
 }
 
@@ -191,7 +209,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "wpb_home_near");
     // action_manager.Init();
     ros::NodeHandle n;
-
+    
     ros::Subscriber pose_sub = n.subscribe<wpb_home_behaviors::Coord>("/rubbishes", 1, GotoRubbish);
     spk_pub = n.advertise<sound_play::SoundRequest>("/robotsound", 20);
     ros::Rate r(10);
