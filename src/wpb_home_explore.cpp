@@ -61,7 +61,7 @@ static waterplus_map_tools::GetWaypointByIndex srvI;
 
 // std::vector<int> have_rubbish = {-1, -1, -1, -1, -1};
 int have_rubbish = 0;
-#define ROTATE_SPEED 0.1
+#define ROTATE_SPEED 0.2
 // #define ROOM_SIZE 5
 static int ROOM_SIZE;
 
@@ -129,7 +129,6 @@ bool explore_start(rubbish::Explore::Request &req, rubbish::Explore::Response &r
                 ROS_INFO("Arrived and Exploration in the %d room.", room_index);
                 ros::Time begin = ros::Time::now();
                 geometry_msgs::Twist vel_msg;
-                vel_msg.linear.x = 0.5;
                 vel_msg.angular.z = ROTATE_SPEED;
                 while ((ros::Time::now() - begin).toSec() < 12)
                 {

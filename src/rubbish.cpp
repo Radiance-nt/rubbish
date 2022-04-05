@@ -27,11 +27,11 @@ using namespace std;
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 static string strGoto;
-static sound_play::SoundRequest spk_msg;
-static ros::Publisher spk_pub;
+// static sound_play::SoundRequest spk_msg;
+// static ros::Publisher spk_pub;
 static ros::Publisher vel_pub;
-static string strToSpeak = "";
-static string strKeyWord = "";
+// static string strToSpeak = "";
+// static string strKeyWord = "";
 static ros::ServiceClient clientIAT;
 static xfyun_waterplus::IATSwitch srvIAT;
 static ros::ServiceClient cliGetWPName;
@@ -194,7 +194,7 @@ int main(int argc, char **argv)
                 if (!near_switch)
                     nState = STATE_EXPLORE;
                 else
-                    nState = STATE_GRAB;
+                    nState = STATE_RETURN;
                 nDelay = 0;
                 nDelay++;
             }
