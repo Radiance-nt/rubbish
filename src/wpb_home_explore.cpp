@@ -61,7 +61,7 @@ static waterplus_map_tools::GetWaypointByIndex srvI;
 
 // std::vector<int> have_rubbish = {-1, -1, -1, -1, -1};
 int have_rubbish = 0;
-#define ROTATE_SPEED 0.1
+#define ROTATE_SPEED 0.2
 // #define ROOM_SIZE 5
 static int ROOM_SIZE;
 
@@ -87,14 +87,14 @@ bool explore_start(rubbish::Explore::Request &req, rubbish::Explore::Response &r
         //     continue;
         // }
         move_base_msgs::MoveBaseGoal goal;
-
         MoveBaseClient ac("move_base", true);
         if (!ac.waitForServer(ros::Duration(5.0)))
             ROS_INFO("The move_base action server is no running. action abort...");
         else
         {
+            room_index=req.thredhold;
             srvI.request.index = room_index;
-
+            
             if (cliGetWPIndex.call(srvI))
             {
                 std::string name = srvI.response.name;
@@ -117,23 +117,31 @@ bool explore_start(rubbish::Explore::Request &req, rubbish::Explore::Response &r
             goal.target_pose.pose = srvI.response.pose;
             ac.sendGoal(goal);
             ac.waitForResult();
+            ROS_INFO("jump......go to room");
+            int k=1;
             if (!(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED))
+            {
+                ROS_INFO("Failed to get to %s ...", strGoto.c_str());
+                continue;
+            }
+            if (!k)
             {
                 ROS_INFO("Failed to get to %s ...", strGoto.c_str());
                 continue;
             }
             else
             {
+                ROS_INFO("begin......begin");
                 have_rubbish = 0;
                 ros::param::set("/rubbish_exist", have_rubbish);
                 ROS_INFO("Arrived and Exploration in the %d room.", room_index);
                 ros::Time begin = ros::Time::now();
                 geometry_msgs::Twist vel_msg;
-                vel_msg.linear.x = 0.5;
-                vel_msg.angular.z = ROTATE_SPEED;
-                while ((ros::Time::now() - begin).toSec() < 12)
+                vel_msg.linear.x = 0;
+                vel_msg.angular.z = -ROTATE_SPEED;
+                while ((ros::Time::now() - begin).toSec() < 30)
                 {
-
+                    
                     vel_pub.publish(vel_msg);
                     ros::Duration(0.5).sleep();
                     ros::param::get("/rubbish_exist", have_rubbish);
@@ -145,9 +153,11 @@ bool explore_start(rubbish::Explore::Request &req, rubbish::Explore::Response &r
                     }
                 }
                 ROS_INFO("Not Found in the %d room, goint to the next one...", room_index);
+                res.result = false;
+                return false;
             }
         }
-        room_index = (room_index + 1) % ROOM_SIZE;
+        // room_index = (room_index + 1) % ROOM_SIZE;
     }
     // if (have_rubbish[ROOM_SIZE] == 0)
     //     res.result == false;

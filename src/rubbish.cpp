@@ -12,7 +12,7 @@
 #include <waterplus_map_tools/GetWaypointByName.h>
 #include <tf/transform_listener.h>
 #include <geometry_msgs/PoseStamped.h>
-
+#include <sentence_voice/Sentence.h>
 using namespace std;
 
 #define STATE_INIT 0
@@ -27,9 +27,10 @@ using namespace std;
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 static string strGoto;
-static sound_play::SoundRequest spk_msg;
-static ros::Publisher spk_pub;
+// static sound_play::SoundRequest spk_msg;
+// static ros::Publisher spk_pub;
 static ros::Publisher vel_pub;
+static ros::Publisher sentence_speak;
 static string strToSpeak = "";
 static string strKeyWord = "";
 static ros::ServiceClient clientIAT;
@@ -58,6 +59,8 @@ static int nState = STATE_INIT;
 static int nDelay = 0;
 
 static int nIndexWant = 0;
+
+static sentence_voice::Sentence sentence;
 
 // 语音说话
 // void Speak(string inStr)
@@ -137,7 +140,7 @@ int main(int argc, char **argv)
     // behaviors_pub = n.advertise<std_msgs::String>("/wpb_home/behaviors", 30);
     // grab_result_sub = n.subscribe<std_msgs::String>("/wpb_home/grab_result", 30, &GrabResultCallback);
     // place_result_sub = n.subscribe<std_msgs::String>("/wpb_home/place_result", 30, &PlaceResultCallback);
-    srvArm.request.height = 0.2;
+    srvArm.request.height = 0;
     srvArm.request.gap = 0.1;
 
     ROS_WARN("[main] wpb_home_rubbish");
@@ -148,7 +151,8 @@ int main(int argc, char **argv)
         if (nState == STATE_INIT)
         {
             nDelay++;
-            if (nDelay > 1000)
+            srvEpl.request.thredhold=0;//从第一个waypoint开始访问
+            if (nDelay > 500)
             {
                 nDelay = 0;
                 nState = STATE_EXPLORE;
@@ -158,6 +162,7 @@ int main(int argc, char **argv)
         // 2、Explore to find the rubbish
         if (nState == STATE_EXPLORE)
         {
+
             ROS_INFO("[STATE_EXPLORE]");
             if (nDelay == 0)
             {
@@ -173,7 +178,10 @@ int main(int argc, char **argv)
                     else
                     {
                         nDelay = 0;
-                        nState = STATE_EMMERGENCY;}
+                        // nState = STATE_EMMERGENCY;}
+                        nState=STATE_EXPLORE;
+                        srvEpl.request.thredhold=srvEpl.request.thredhold+1;
+                    }
                 }
             }
         }
@@ -192,9 +200,13 @@ int main(int argc, char **argv)
                     sleep(0.5);
                 }
                 if (!near_switch)
+                {
                     nState = STATE_EXPLORE;
+                    continue;
+                }
                 else
                     nState = STATE_GRAB;
+                    ROS_INFO("begin to grab......");
                 nDelay = 0;
                 nDelay++;
             }
@@ -203,8 +215,14 @@ int main(int argc, char **argv)
         // 5、抓取物品
         if (nState == STATE_GRAB)
         {
-
+            // ROS_INFO("near is ready wait...........");
+            // while(1)
+            // {
+            // }
             ROS_INFO("[STATE_GRAB]");
+            sentence_speak=n.advertise<sentence_voice::Sentence>("/sentence_to_speak",10);
+            sentence.sentence="Can you pick this up for me?";
+            sentence_speak.publish(sentence);
             srvArm.request.state = 1;
             if (!arm.call(srvArm))
             {
@@ -281,6 +299,7 @@ int main(int argc, char **argv)
                     nIndexWant++;
                     ROS_INFO("OK. Finding the %d rubbish", nIndexWant);
                     nDelay = 0;
+                    srvEpl.request.thredhold=srvEpl.request.thredhold+1;
                     nState = STATE_EXPLORE;
                 }
                 else
@@ -292,7 +311,7 @@ int main(int argc, char **argv)
         }
         if (nState == STATE_EMMERGENCY)
         {
-            // ROS_WARN("State_EMERGENCY");
+            ROS_WARN("State_EMERGENCY");
             if (nDelay == 0)
             {
                 ROS_WARN("State_EMERGENCY: end?");
