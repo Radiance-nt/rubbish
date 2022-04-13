@@ -124,6 +124,7 @@ void GotoRubbish(const wpb_home_behaviors::Coord::ConstPtr &msg)
             return ;
         }
 
+
         ROS_INFO("Get close to rubbish..");
 
         human_x = (msg->x)[0];
@@ -191,7 +192,9 @@ void GotoRubbish(const wpb_home_behaviors::Coord::ConstPtr &msg)
                 ros::param::set("/wpb_tutorial_near", naerSuccess);
             }
             else
+                {
                 successDelay += 10;
+                }
             ROS_INFO("successDelay=%d", successDelay);
         }
         else
@@ -223,6 +226,7 @@ int main(int argc, char **argv)
     int m=0;
     ros::param::get("/rubbishes", m);
     ROS_INFO("-----%d-----",m);
+
     ros::Subscriber pose_sub = n.subscribe<wpb_home_behaviors::Coord>("/rubbishes", 1, GotoRubbish);
 
     spk_pub = n.advertise<sound_play::SoundRequest>("/robotsound", 20);

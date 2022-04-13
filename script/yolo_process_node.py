@@ -125,7 +125,7 @@ def update_depth(image_msg):
     image = np.repeat(image, 3, 2)
     Xmin = np.min(image)
     Xmax = np.max(image)
-    image = 255 / (Xmax - Xmin) * (image - Xmin)
+    image = 255 / (Xmax - Xmin + 0.1) * (image - Xmin)
     global g_allO, g_N
     for object in g_allO:
         image = draw(object, image)
