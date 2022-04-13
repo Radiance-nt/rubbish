@@ -58,6 +58,7 @@ class Entities:
         self.class_list = class_list
 
     def get_depth(self, pixel_x, pixel_y):
+        rospy.loginfo("**********%s %s**********"%(pixel_x,pixel_y))
         index_x = int(pixel_x)
         index_y = int(pixel_y)
         if isinstance(self.depth, np.ndarray):
@@ -72,7 +73,7 @@ class Entities:
             if cla in self.class_list:
                 for et in ets:
                     pixel_x, pixel_y, pixel_w, pixel_h, _ = et
-                    pixel_x =+ pixel_w/2
+                    pixel_x=pixel_x+pixel_w/2
                     norm_pixel_x = pixel_x - (CAMERA_WIDTH / 2)
                     z = self.get_depth(pixel_x, pixel_y) / 1000
                     d_angle = - math.atan(norm_pixel_x / (CAMERA_HEIGHT / 2) /
@@ -93,7 +94,7 @@ class Entities:
             if abs(object[4]) < minn_d_angle:
                 minn_d_angle = abs(object[4])
                 pointer = object
-            if object[1]>200 and object[1]<760:
+            if object[1]>200 and object[1]<760 and object[3]<4:
                inlier = 1
             else:
                inlier = 0
@@ -117,7 +118,7 @@ def update_depth(image_msg):
 
     image = _cv_bridge.imgmsg_to_cv2(image_msg, desired_encoding="passthrough")
     _, image = cv2.threshold(
-        image, 4000, 4000, cv2.THRESH_TRUNC)
+        image, 5000, 5000, cv2.THRESH_TRUNC)
     global_entities.depth = image
     # image = cv2.resize(image, (106, 128))
     image = image[:, :, np.newaxis]
@@ -180,6 +181,6 @@ if __name__ == '__main__':
     rospy.Subscriber(name="yolo_result", data_class=String,
                      queue_size=5, callback=yoloCallback)
     
-    rospy.Subscriber(right_topic, Image, update_depth)
+    rospy.Subscriber(sub_topic, Image, update_depth)
 
     rospy.spin()

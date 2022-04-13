@@ -64,7 +64,7 @@ static float human_y = 0;
 static float human_z = 0;
 static float max_linear_vel = 0.5;
 static float max_angular_vel = 1.5;
-static float keep_dist = 0.4; //到物体所在平面的垂直距离
+static float keep_dist = 0.5; //到物体所在平面的垂直距离
 // static int exist_rubbish=1;
 // #define ROOM_SIZE 5
 static int ROOM_SIZE;
@@ -113,9 +113,18 @@ void GotoRubbish(const wpb_home_behaviors::Coord::ConstPtr &msg)
 {
     ros::param::get("/wpb_tutorial_near", naerSuccess);
     if (naerSuccess != 1)
+    {
+
         return;
+    }
     else
     {
+        if((msg->name)[0]=="none")
+        {
+            return ;
+        }
+
+
         ROS_INFO("Get close to rubbish..");
 
         human_x = (msg->x)[0];
@@ -205,14 +214,21 @@ void GotoRubbish(const wpb_home_behaviors::Coord::ConstPtr &msg)
         vel_pub.publish(vel_cmd);
     }
 }
-
+void recall(const wpb_home_behaviors::Coord::ConstPtr &msg)
+{
+    ros::param::set("/wpb_tutorial_near", 0);
+}
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "wpb_home_near");
     // action_manager.Init();
     ros::NodeHandle n;
-    
+    int m=0;
+    ros::param::get("/rubbishes", m);
+    ROS_INFO("-----%d-----",m);
+
     ros::Subscriber pose_sub = n.subscribe<wpb_home_behaviors::Coord>("/rubbishes", 1, GotoRubbish);
+
     spk_pub = n.advertise<sound_play::SoundRequest>("/robotsound", 20);
     ros::Rate r(10);
     vel_pub = n.advertise<geometry_msgs::Twist>("/cmd_vel", 10);

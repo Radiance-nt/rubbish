@@ -55,45 +55,44 @@ bool grip(rubbish::Lifter::Request &req, rubbish::Lifter::Response &res)
 
 	switch(req.state)
 	{
-		case state_grip:
+		case 1:
 		{
-			ROS_INFO("[lifter_grip] height:%f , gap: %f",float(req.state),float(req.gap));
-    		
+			
+    		ROS_INFO("[lifter_grip] height:%f , gap: %f",float(0),float(req.gap));
 			//go backward and unfold the lifter
-			move(-0.2,3);
-			ctrl_msg.position[0] = req.height;     //height   /meter
-    		ctrl_msg.position[1] = req.gap+0.02;     //gap      /meter
+			// move(-0.2,3);
+			ctrl_msg.position[0] = 0;     //height   /meter
+    		ctrl_msg.position[1] = req.gap;     //gap      /meter
     		mani_ctrl_pub.publish(ctrl_msg);
-    		sleep(10);
-
+    		// sleep(10);
+            
 			//go forward and grep
-			move(0.2,3);
-			ctrl_msg.position[1] = req.gap;
-    		mani_ctrl_pub.publish(ctrl_msg);
+			// // move(0.2,3);
+			// ctrl_msg.position[1] = req.gap;
+    		// mani_ctrl_pub.publish(ctrl_msg);
     		sleep(2);
 
 			//lift
-			ctrl_msg.position[0] = req.height+0.2;
-			mani_ctrl_pub.publish(ctrl_msg);
+			// ctrl_msg.position[0] = 0;
+			// mani_ctrl_pub.publish(ctrl_msg);
 			sleep(3);
 
 
 			res.result=true;
     		break;
 		}
-		case state_throw:
+		case 0:
 		{
-			ROS_INFO("[lifter_throw] height:%f , gap: %f",float(req.state),float(req.gap));
-    		
-			ctrl_msg.position[1] = ctrl_msg.position[1] + 0.02;     //gap      /meter
+    		ROS_INFO("[lifter_throw] height:%f , gap: %f",float(0),float(req.gap+0.1));
+    		ctrl_msg.position[0] = 0; 
+			ctrl_msg.position[1] = req.gap+0.05;     //gap      /meter
     		mani_ctrl_pub.publish(ctrl_msg);
     		sleep(2);
     		
-    		ctrl_msg.position[0] = 0;
-    		ctrl_msg.position[1] = 0.1;
-    		mani_ctrl_pub.publish(ctrl_msg);
+    		// ctrl_msg.position[0] = 0;
+    		// ctrl_msg.position[1] = req.gap+0.1;
+    		// mani_ctrl_pub.publish(ctrl_msg);7
     		sleep(4);
-    		
 			res.result=true;
     		break;
 		}
